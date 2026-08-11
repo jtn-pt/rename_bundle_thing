@@ -46,11 +46,20 @@ static void ChangeStreamingInfoPaths(AssetsManager manager, AssetsFileInstance a
     string newPath = $"archive:/{assetInst.name}.resS";
     foreach(AssetFileInfo assetFileInfo in assetInst.file.AssetInfos)
     {
-        AssetTypeValueField item = manager.GetBaseField(assetInst, assetFileInfo);
-        AssetTypeValueField streamingInfo = item.Get("m_StreamData"); if (streamingInfo.ToString().StartsWith("DUMMY DUMMY")) continue;
-        AssetTypeValueField path_StreamingInfo = streamingInfo.Get("path"); if (path_StreamingInfo.AsString.Length < 1) continue;
-        path_StreamingInfo.AsString = newPath; //change path
-        assetFileInfo.SetNewData(item); //set changes
+        try
+        {
+            AssetTypeValueField item = manager.GetBaseField(assetInst, assetFileInfo);
+            AssetTypeValueField streamingInfo = item.Get("m_StreamData");
+            if (streamingInfo.ToString().StartsWith("DUMMY DUMMY")) continue;
+            AssetTypeValueField path_StreamingInfo = streamingInfo.Get("path");
+            if (path_StreamingInfo.AsString.Length < 1) continue;
+            path_StreamingInfo.AsString = newPath; //change path
+            assetFileInfo.SetNewData(item); //set changes
+        }
+        catch (Exception err)
+        {
+            Console.WriteLine($"\nerror: {err.Message}\naffected pathID: {assetFileInfo.PathId}\ntypeID: {assetFileInfo.TypeId}\n------------");
+        }
     }
 }
 
